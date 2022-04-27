@@ -1,0 +1,28 @@
+{
+  "name": "vizzu-chartling",
+  "version": "0.1.0",
+  "description": "Write up a data story with multiple chart instance spawns with style and ease",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "prepack": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glinto/vizzu-chartling.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/glinto/vizzu-chartling/issues"
+  },
+  "homepage": "https://github.com/glinto/vizzu-chartling#readme",
+  "devDependencies": {
+    "@types/node": "^17.0.31",
+    "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "vizzu": "^0.4.7"
+  }
+}
