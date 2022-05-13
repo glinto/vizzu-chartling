@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>Chartling example</title>
+	<script type="module">
+		import Vizzu from 'https://cdn.jsdelivr.net/npm/vizzu@~0.4.0/dist/vizzu.min.js';
+		import { Chartling } from '../dist/index.js';
+
+		window.addEventListener('DOMContentLoaded', (event) => {
+			Chartling.use(Vizzu);
+			let c = new Chartling('.chartling-chart');
+		});
+
+
+
+	</script>
+</head>
+<style>
+	body {
+		margin: 0;
+		padding: 0;
+	}
+
+	d-flex {
+		display: flex;
+	}
+</style>
+
+<body>
+	<div class="d-flex">
+		<div class="chartling-chart"></div>
+	</div>
+
+</body>
+
+</html>
