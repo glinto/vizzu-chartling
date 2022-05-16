@@ -5,12 +5,18 @@ export interface ChartlingOptions {
 	base?: Chartling | string;
 }
 
+export interface ChartlingAnim {
+	chartling: Chartling;
+	anim: number | Config.Chart | AnimTarget;
+}
+
 export class Controller {
 
 	private static _instance: Controller;
 	chartClass?: typeof Vizzu;
 	chart?: Vizzu;
-	queue: (number | Config.Chart | AnimTarget)[] = [];
+	queue: ChartlingAnim[] = [];
+	chartlings: Map<string, Chartling> = new Map();
 
 	static get instance(): Controller {
 		if (!Controller._instance) {
@@ -19,9 +25,25 @@ export class Controller {
 		return Controller._instance;
 	}
 
+	add(chartling: Chartling) {
+		this.chartlings.set(chartling.container.id, chartling);
+	}
 
-	push(config: number | Config.Chart | AnimTarget) {
-		this.queue.push(config);
+	/**
+	 * Provide a Vizzu class reference which the Chartling class would use. 
+	 * 
+	 * @param vizzuClass The Vizzu class reference
+	 */
+	use(vizzuClass: typeof Vizzu) {
+		// Subsequent calls will be ignored
+		if (this.chartClass === undefined) {
+			this.chartClass = vizzuClass;
+		}
+
+	}
+
+	push(anim: ChartlingAnim) {
+		this.queue.push(anim);
 	}
 
 }
@@ -33,7 +55,7 @@ export class Chartling {
 	 * does not require a base chartling, this property will be explicitly set to null.
 	 * Chartlings without a base play their configuration from a clean sheet
 	 */
-	//base: Chartling | null;
+	base: Chartling | null;
 
 	/**
 	 * The html element which contains the chartling.
@@ -56,6 +78,16 @@ export class Chartling {
 		}
 		this.container = elem;
 
+		// set up base reference
+		this.base = null;
+		if (options?.base !== undefined) {
+			if (typeof options?.base === "string") {
+				this.base = Controller.instance.chartlings.get(options.base) || null;
+			}
+			else if (options?.base instanceof Chartling) {
+				this.base = options.base;
+			}
+		}
 
 		if (Controller.instance.chart === undefined) {
 			// If we do not yet have a chart instance, create one 
@@ -71,6 +103,9 @@ export class Chartling {
 		if (this.container.id === '') {
 			this.container.id = "chartling-" + Math.random().toString(36).slice(2);
 		}
+
+		Controller.instance.add(this);
+
 
 	}
 
@@ -105,7 +140,7 @@ export class Chartling {
 
 
 	set data(value: any) {
-		Controller.instance.push({ data: value });
+		Controller.instance.push({ chartling: this, anim: { data: value } });
 	}
 
 	/**
@@ -114,10 +149,7 @@ export class Chartling {
 	 * @param vizzuClass The Vizzu class reference
 	 */
 	static use(vizzuClass: typeof Vizzu) {
-		// Subsequent calls will be ignored
-		if (Controller.instance.chartClass === undefined) {
-			Controller.instance.chartClass = vizzuClass;
-		}
-
+		Controller.instance.use(vizzuClass);
 	}
+
 }
