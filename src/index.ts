@@ -5,18 +5,23 @@ export interface ChartlingOptions {
 	base?: Chartling | string;
 }
 
-interface ControllerState {
-	chartClass: typeof Vizzu;
-	chart?: Vizzu;
-	queue: (number | Config.Chart | AnimTarget)[];
-}
-
 export class Controller {
 
-	static state: ControllerState;
+	private static _instance: Controller;
+	chartClass?: typeof Vizzu;
+	chart?: Vizzu;
+	queue: (number | Config.Chart | AnimTarget)[] = [];
 
-	static push(config: number | Config.Chart | AnimTarget) {
-		Controller.state.queue.push(config);
+	static get instance(): Controller {
+		if (!Controller._instance) {
+			Controller._instance = new Controller();
+		}
+		return Controller._instance;
+	}
+
+
+	push(config: number | Config.Chart | AnimTarget) {
+		this.queue.push(config);
 	}
 
 }
@@ -41,7 +46,7 @@ export class Chartling {
 	private chart: Vizzu;
 
 	constructor(container: HTMLDivElement | string, options?: ChartlingOptions) {
-		if (Controller.state === undefined) {
+		if (Controller.instance.chartClass === undefined) {
 			throw new Error('Chartling.use(vizzuClass) must be called before creating a Chartling instance.');
 		}
 
@@ -52,16 +57,16 @@ export class Chartling {
 		this.container = elem;
 
 
-		if (Controller.state.chart === undefined) {
+		if (Controller.instance.chart === undefined) {
 			// If we do not yet have a chart instance, create one 
 			// and put it temporarily in a template element
 			let template = document.createElement("template");
 			let div = document.createElement("div");
 			template.appendChild(div);
 			console.log(template);
-			Controller.state.chart = new Controller.state.chartClass(div);
+			Controller.instance.chart = new Controller.instance.chartClass(div);
 		}
-		this.chart = Controller.state.chart;
+		this.chart = Controller.instance.chart;
 		// Generate a unique id for the container if it does not have one
 		if (this.container.id === '') {
 			this.container.id = "chartling-" + Math.random().toString(36).slice(2);
@@ -100,7 +105,7 @@ export class Chartling {
 
 
 	set data(value: any) {
-		Controller.push({ data: value });
+		Controller.instance.push({ data: value });
 	}
 
 	/**
@@ -110,11 +115,8 @@ export class Chartling {
 	 */
 	static use(vizzuClass: typeof Vizzu) {
 		// Subsequent calls will be ignored
-		if (Controller.state === undefined) {
-			Controller.state = {
-				chartClass: vizzuClass,
-				queue: []
-			};
+		if (Controller.instance.chartClass === undefined) {
+			Controller.instance.chartClass = vizzuClass;
 		}
 
 	}
