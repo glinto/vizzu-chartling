@@ -17,6 +17,7 @@ export class Controller {
 	chart?: Vizzu;
 	queue: ChartlingAnim[] = [];
 	chartlings: Map<string, Chartling> = new Map();
+	busy = false;
 
 	static get instance(): Controller {
 		if (!Controller._instance) {
@@ -50,9 +51,32 @@ export class Controller {
 
 	}
 
+	/**
+	 * Push a new chartling animation to the queue.
+	 * @param anim A chartling animation object to play
+	 */
+
 	push(anim: ChartlingAnim) {
 		this.queue.push(anim);
+		this.play();
 	}
+
+	play() {
+		// Do nothing if the controller is busy
+		if (this.busy) return;
+		if (this.chart === undefined) return;
+		if (this.queue.length === 0) return;
+		// Anim is not based on another chartling,
+		// se we can just reset and animat ethe chart
+		if (this.queue[0].chartling.base === null) {
+			this.chart.initializing.then(() => {
+				this.chart?.animate(this.queue[0].anim);
+			});
+		};
+	}
+
+
+
 
 }
 
