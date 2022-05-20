@@ -38,6 +38,14 @@ export class Controller {
 		// Subsequent calls will be ignored
 		if (this.chartClass === undefined) {
 			this.chartClass = vizzuClass;
+
+			// If we do not yet have a chart instance, create one 
+			// and put it temporarily in a template element
+			let template = document.createElement("template");
+			let div = document.createElement("div");
+			template.appendChild(div);
+			console.log(template);
+			this.chart = new this.chartClass(div);
 		}
 
 	}
@@ -90,13 +98,7 @@ export class Chartling {
 		}
 
 		if (Controller.instance.chart === undefined) {
-			// If we do not yet have a chart instance, create one 
-			// and put it temporarily in a template element
-			let template = document.createElement("template");
-			let div = document.createElement("div");
-			template.appendChild(div);
-			console.log(template);
-			Controller.instance.chart = new Controller.instance.chartClass(div);
+			throw new Error('Chartling.use(vizzuClass) must be called before creating a Chartling instance.');
 		}
 		this.chart = Controller.instance.chart;
 		// Generate a unique id for the container if it does not have one
